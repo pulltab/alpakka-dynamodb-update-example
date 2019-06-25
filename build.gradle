@@ -1,0 +1,38 @@
+apply plugin: 'scala'
+apply plugin: "application"
+
+mainClassName = "examples.alpakka.UpdateExample"
+group = "examples.alpakka"
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+buildscript {
+    repositories {
+      mavenLocal()
+      jcenter()
+    }
+
+    dependencies {
+    }
+}
+
+task runDevelopment(type: JavaExec) {
+    environment = ['AWS_ACCESS_KEY_ID': 'fizzbuzz', 'AWS_SECRET_ACCESS_KEY': 'foomatic']
+    main = mainClassName
+    group = group
+    classpath = sourceSets.main.runtimeClasspath
+    jvmArgs = ['-Dconfig.resource=development.conf', '-Dlog.app.level=DEBUG']
+}
+
+apply from: "${rootDir}/dependencies.gradle"
+
+dependencies {
+  compile sharedDependencies.akka.actor
+  compile sharedDependencies.akka.http
+  compile sharedDependencies.akka.httptestkit
+  compile sharedDependencies.alpakka.dynamodb
+  compile sharedDependencies.scala.lang
+}

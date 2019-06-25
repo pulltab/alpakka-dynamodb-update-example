@@ -1,0 +1,23 @@
+def versions = [
+        scala         : "2.12",
+        akka          : "2.5.21",
+        akka_http     : "10.1.7",
+        alpakka       : "1.0-M3",
+]
+
+ext.sharedDependencies = [
+        akka       : [
+                actor       : [group: "com.typesafe.akka", name: "akka-actor_${versions.scala}", version: versions.akka],
+                http        : [group: "com.typesafe.akka", name: "akka-http_${versions.scala}", version: versions.akka_http],
+                httptestkit : [group: "com.typesafe.akka", name: "akka-http-testkit_${versions.scala}", version: versions.akka_http],
+                slf4j       : [group: "com.typesafe.akka", name: "akka-slf4j_${versions.scala}", version: versions.akka],
+                testkit     : [group: "com.typesafe.akka", name: "akka-testkit_${versions.scala}", version: versions.akka]
+        ],
+        alpakka    : [
+                dynamodb  : [group: "com.lightbend.akka", name: "akka-stream-alpakka-dynamodb_${versions.scala}", version: versions.alpakka]
+        ],
+        scala      : [
+                lang: [group: "org.scala-lang", name: "scala-library", version: versions.scala_lang],
+                test: [group: "org.scalatest", name: "scalatest_${versions.scala}", version: versions.scala_test]
+        ]
+]

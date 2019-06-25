@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  # Dynamodb @ HTTP:4569
+  localstack:
+    image: amazon/dynamodb-local
+    ports:
+      - "4569:4569"
+    command: "-Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -inMemory -port 4569"
