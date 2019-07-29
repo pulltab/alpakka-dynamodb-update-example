@@ -97,16 +97,15 @@ object UpdateExample {
       new TransactWriteItem()
         .withUpdate(
           new Update()
-            .withTableName("foobar")
+            .withTableName(table)
             .withKey(
               Map(
                 "partition" -> new AttributeValue().withS("foo"),
                 "sort" -> new AttributeValue().withS("bar")) asJava)
             .withExpressionAttributeNames(Map("#v" -> "value") asJava)
             .withExpressionAttributeValues(Map(":v" -> new AttributeValue().withS("test")) asJava)
-            .withConditionExpression("attribute_not_exists(#v)")
+            .withConditionExpression("attribute_exists(#v)") //This condition is expected to fail
             .withUpdateExpression("SET #v = :v")
-            .withReturnValuesOnConditionCheckFailure("ALL_OLD"))
 
     val request = new TransactWriteItemsRequest().withTransactItems(List(update) asJava)
 
@@ -116,10 +115,23 @@ object UpdateExample {
         result => println(s"Result: $result")
       }
       .recover {
-        case oops => println(s"Exception - $oops")
+        case oops: AmazonDynamoDBException =>
+          if( oops.isInstanceOf[TransactionCanceledException] ){
+            // This branch is not reached, but expected to.
+            println("TransactionCanceled!")
+          } else if( oops.getErrorCode() == "TransactionCanceledException") {
+            // This branch is reachable, however, one is unable
+            // to easily access cancellation reasons.
+            //
+            // Note - The raw response object contains the expected type,
+            // the type returned by alpakka is a generic AmazonDynamoDBException.
+            println(s" RAW: ${oops.getRawResponseContent()}")i
+          } else {
+            println(s"Unhandled Exception - $oops")
+          }
       }
       .onComplete {
-        _ => Done
+        _ => System.exit(0)
       }
   }
 }
